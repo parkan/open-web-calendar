@@ -306,6 +306,8 @@ function resetConfig() {
 
 // If you add an action XXX here, also add icon_XXX to the calendar translations
 // And also an icon to static/img/icons/XXX.svg
+
+// TODO-KEV: re-add subscribe once we parse events better
 var actions = {
   // "subscribe": function(event) {
   //     console.log("Save event.", event);
