@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import datetime
+import re
+from icalendar import vText
 from html import escape
 from typing import TYPE_CHECKING, Optional
 
@@ -83,6 +85,14 @@ class ConvertToDhtmlx(ConversionStrategy):
     def convert_ical_event(self, calendar_index, calendar_event: Event):
         start = calendar_event.start
         end = calendar_event.end
+        if 'X-ALT-DESC' not in calendar_event:
+            plain_text = calendar_event.get('DESCRIPTION', '')
+            if plain_text:
+                pattern = r'(https?://[\w\-\.]+\.[a-zA-Z]{2,}(?:/[\w\-\./\?=%&#+]*)?)'
+                html_description = f"<p>{re.sub(pattern, r'<a href="\1">\1</a>', plain_text)}</p><hr />"
+                calendar_event.add('X-ALT-DESC', vText(html_description), parameters={'FMTTYPE': 'text/html'})
+
+        # if start and end are dates and the same, add one day to end
         if is_date(start) and is_date(end) and start == end:
             end = start + datetime.timedelta(days=1)
         location = Location(calendar_event, self.location_spec)
