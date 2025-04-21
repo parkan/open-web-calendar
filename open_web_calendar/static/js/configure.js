@@ -309,10 +309,10 @@ function resetConfig() {
 
 // TODO-KEV: re-add subscribe once we parse events better
 var actions = {
-  // "subscribe": function(event) {
-  //     console.log("Save event.", event);
-  //     downloadICS(event);
-  // }
+  subscribe: function (event) {
+    console.log('Save event.', event);
+    downloadICS(event);
+  },
 };
 
 /* Disable/Enable features based on touch/mouse-over gestures
