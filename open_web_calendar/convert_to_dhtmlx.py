@@ -13,6 +13,7 @@ import zoneinfo
 from dateutil.parser import parse as parse_date
 from flask import jsonify
 from icalendar_compatibility import Description, Location, LocationSpec
+from urllib.parse import urlparse
 
 from .clean_html import clean_html
 from .conversion_base import ConversionStrategy
@@ -26,6 +27,43 @@ if TYPE_CHECKING:
 def is_date(date):
     """Whether the date is a datetime.date and not a datetime.datetime"""
     return isinstance(date, datetime.date) and not isinstance(date, datetime.datetime)
+
+
+class CustomLocation(Location):
+    """Custom Location class that uses urllib.parse for URL validation."""
+    
+    @property
+    def url(self) -> str:
+        """Get the location URL using urllib.parse for validation.
+        
+        Returns:
+            str: The URL if valid, otherwise an empty string
+        """
+        if self.raw_altrep:
+            return self.raw_altrep
+            
+        # Check for geo coordinates first
+        lon, lat = self.lon, self.lat
+        if lon is not None and lat is not None:
+            return self._spec.get_geo_url(lat=lat, lon=lon, zoom=self.zoom)
+            
+        # Check text location
+        text = self.text
+        if not text:
+            return ""
+            
+        # Look for URLs within the text
+        words = text.split()
+        for word in words:
+            try:
+                result = urlparse(word)
+                if all([result.scheme, result.netloc]):
+                    return word
+            except:
+                continue
+                
+        # If no valid URL found, use the spec's text URL
+        return self._spec.get_text_url(location=text, zoom=self.zoom)
 
 
 class ConvertToDhtmlx(ConversionStrategy):
@@ -98,7 +136,7 @@ class ConvertToDhtmlx(ConversionStrategy):
         # if start and end are dates and the same, add one day to end
         if is_date(start) and is_date(end) and start == end:
             end = start + datetime.timedelta(days=1)
-        location = Location(calendar_event, self.location_spec)
+        location = CustomLocation(calendar_event, self.location_spec)
         name = calendar_event.get("SUMMARY", "")
         sequence = str(calendar_event.get("SEQUENCE", 0))
         uid = calendar_event.get(
