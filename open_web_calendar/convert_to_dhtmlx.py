@@ -162,7 +162,6 @@ class ConvertToDhtmlx(ConversionStrategy):
             "uid": uid,
             "ical": calendar_event.to_ical().decode("UTF-8"),
             "sequence": sequence,
-            "recurrence": None,
             "url": calendar_event.get("URL"),
             "id": uid + "-" + start_date.replace(" ", "-").replace(":", "-"),
             "type": "event",
