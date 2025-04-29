@@ -371,7 +371,7 @@ function loadCalendar() {
     var html = '';
     for (var i = 0; i < hour_division; i++) {
       html +=
-        "<div style='height:44px;line-height:44px;'>" + format(date) + '</div>'; // TODO: This should be in CSS.
+        "<div style='height:44px;line-height:36px;'>" + format(date) + '</div>'; // TODO: This should be in CSS.
       date = scheduler.date.add(date, step, 'minute');
     }
     return html;
